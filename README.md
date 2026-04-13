@@ -60,9 +60,9 @@ A production-ready boilerplate for building React applications with a **separate
 
 ### When NOT to Use
 
-- 📰 **SEO-heavy content sites** → Use **Next.js** with SSR (this stack is client-side rendered)
-- 📄 **Simple static sites** → Use **Vite** + React only (no backend needed)
-- 🏗️ **Complex enterprise requiring microservices** → Use **NestJS**, **Go**, or dedicated service architecture
+- 📰 **SEO-heavy content sites** → Use [**laju.dev**](https://laju.dev) (best boilerplate framework), or enable SSR in this stack by setting `ssr: true` in `react-router.config.ts`
+- 📄 **Simple static sites** → Use **Astro** (optimized for content sites)
+- 🏗️ **Complex enterprise requiring microservices** → Use `backend/` folder only as standalone API service (ignore `app/` folder)
 
 ---
 
