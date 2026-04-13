@@ -87,6 +87,8 @@ With SQLite WAL mode + Litestream replication, you get:
 
 ## 🔥 Performance Benchmark
 
+### API Layer (HyperExpress)
+
 Tested with `wrk` (4 threads, 100 connections, 30s):
 
 | Framework | Requests/sec | Latency (avg) | Transfer/sec |
@@ -96,6 +98,50 @@ Tested with `wrk` (4 threads, 100 connections, 30s):
 | **Improvement** | **~7.5x faster** | **~8x lower latency** | **~3x throughput** |
 
 HyperExpress delivers **enterprise-grade performance** for your API layer.
+
+### Database Layer (Kysely + better-sqlite3)
+
+Benchmark results from [better-sqlite3-benchmark](https://github.com/maulanashalihin/better-sqlite3-benchmark) (Mac Mini M4 - NVMe Native):
+
+#### WAL Mode Impact (DELETE vs WAL)
+
+| Operation | DELETE Mode | WAL Mode | Improvement |
+|-----------|-------------|----------|-------------|
+| Single Insert | ~4,496 ops/sec | ~99,437 ops/sec | **22x faster** |
+| Batch Insert (5 records) | ~3,507 ops/sec | ~30,655 ops/sec | **9x faster** |
+| Select By ID | ~337,456 ops/sec | ~912,229 ops/sec | **2.7x faster** |
+| Update Single | ~5,312 ops/sec | ~173,320 ops/sec | **33x faster** |
+| Delete Single | ~243,339 ops/sec | ~705,729 ops/sec | **2.9x faster** |
+| Concurrent Write | ~5,063 ops/sec | ~64,000 ops/sec | **13x faster** |
+
+> **WAL mode is essential for write-intensive applications.** The performance improvement is dramatic across all write operations.
+
+#### Library Comparison (All in WAL Mode)
+
+| Library | Type Safety | Single Insert | Select By ID | Update | Overhead vs Native |
+|---------|-------------|--------------:|-------------:|-------:|-------------------:|
+| **Native better-sqlite3** | None | ~99,437 ops/sec | ~912,229 ops/sec | ~173,320 ops/sec | 0% (baseline) |
+| **Kysely** | Full TypeScript | ~95,002 ops/sec | ~919,351 ops/sec | ~174,864 ops/sec | **0-5%** |
+| **Kysely Generic** | Full TypeScript | ~99,955 ops/sec | ~910,096 ops/sec | ~177,373 ops/sec | **0-5%** |
+| **Knex.js** | None (JS only) | ~54,766 ops/sec | ~90,727 ops/sec | ~75,971 ops/sec | **30-50%** |
+
+#### Key Findings
+
+| Category | Winner | Performance | Notes |
+|----------|--------|-------------|-------|
+| **Single Insert** | Kysely Generic | ~99,955 ops/sec | 22x faster than DELETE mode |
+| **Select By ID** | Kysely | ~919,351 ops/sec | 0% overhead (actually faster than native!) |
+| **Update** | Kysely Generic | ~177,373 ops/sec | 33x faster than DELETE mode |
+| **Concurrent Write** | Native WAL | ~64,000 ops/sec | 13x faster than DELETE mode |
+
+#### Why Kysely + better-sqlite3?
+
+✅ **Near-native performance** - 0-5% overhead vs raw better-sqlite3
+✅ **Full TypeScript type-safety** - Catch errors at compile time, not runtime
+✅ **WAL mode enabled** - 22-33x faster writes than default DELETE mode
+✅ **Type-safe migrations** - File-per-migration system with rollback support
+✅ **Clean query builder** - Fluent API, no raw SQL strings needed
+✅ **Zero connection pooling overhead** - Perfect for single-file SQLite
 
 ---
 
