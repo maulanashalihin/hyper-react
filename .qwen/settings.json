@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(ui.shadcn.com)",
+      "WebFetch(lucide.dev)",
+      "Bash(rm *)",
+      "Bash(lsof *)",
+      "Bash(mv *)",
+      "Bash(git init)"
+    ]
+  },
+  "$version": 3
+}
