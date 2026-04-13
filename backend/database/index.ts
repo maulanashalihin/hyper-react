@@ -22,7 +22,7 @@ sqliteDb.pragma('busy_timeout = 5000'); // 5 seconds timeout for concurrent acce
 
 console.log('SQLite WAL mode enabled for high write throughput');
 
-function createSqliteExecutor(db: Database): IGenericSqlite<Database> {
+function createSqliteExecutor(db: Database.Database): IGenericSqlite<Database.Database> {
   const getStmt = (sql: string) => db.prepare(sql);
 
   return {
@@ -55,7 +55,8 @@ export const db = new Kysely<DB>({
 
 export async function initializeDatabase(): Promise<void> {
   try {
-    await db.selectFrom('sqlite_master').select('type').executeTakeFirst();
+    // Simple check to ensure database is accessible
+    sqliteDb.prepare('SELECT 1').get();
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization failed:', error);

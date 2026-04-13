@@ -83,19 +83,22 @@ export class AuthService {
         email,
         password: hashedPassword,
         fullName: fullName ?? null,
+        role: 'user',
+        isActive: true,
+        emailVerified: false,
       })
       .returningAll()
       .executeTakeFirstOrThrow();
 
     const token = this.generateToken(user);
     const verificationToken = randomBytes(32).toString('hex');
-    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
     await db
       .updateTable('users')
       .set({
         emailVerificationToken: verificationToken,
-        emailVerificationExpires: verificationExpires.toISOString(),
+        emailVerificationExpires: verificationExpires,
       })
       .where('id', '=', user.id)
       .execute();
@@ -136,13 +139,13 @@ export class AuthService {
     }
 
     const resetToken = randomUUID();
-    const resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000);
+    const resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
     await db
       .updateTable('users')
       .set({
         resetToken,
-        resetTokenExpires: resetTokenExpires.toISOString(),
+        resetTokenExpires,
       })
       .where('id', '=', user.id)
       .execute();
@@ -254,13 +257,13 @@ export class AuthService {
     }
 
     const verificationToken = randomBytes(32).toString('hex');
-    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
     await db
       .updateTable('users')
       .set({
         emailVerificationToken: verificationToken,
-        emailVerificationExpires: verificationExpires.toISOString(),
+        emailVerificationExpires: verificationExpires,
       })
       .where('id', '=', user.id)
       .execute();

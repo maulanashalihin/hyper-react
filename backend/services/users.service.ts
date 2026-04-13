@@ -1,26 +1,29 @@
 import { db } from '../database/index.js';
-import type { User } from '../database/types.js';
+import type { User, UserUpdate } from '../database/types.js';
 
-const USER_PUBLIC_FIELDS = ['id', 'username', 'email', 'fullName', 'isActive', 'createdAt', 'updatedAt'] as const;
+type PublicUser = Pick<User, 'id' | 'username' | 'email' | 'fullName' | 'isActive' | 'createdAt' | 'updatedAt'>;
+
+const USER_PUBLIC_FIELDS: readonly (keyof PublicUser)[] = ['id', 'username', 'email', 'fullName', 'isActive', 'createdAt', 'updatedAt'] as const;
 
 export class UsersService {
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<PublicUser[]> {
     return db
       .selectFrom('users')
       .select(USER_PUBLIC_FIELDS)
       .orderBy('createdAt', 'desc')
-      .execute();
+      .execute() as Promise<PublicUser[]>;
   }
 
-  async findOne(id: string): Promise<User | null> {
-    return db
+  async findOne(id: string): Promise<PublicUser | null> {
+    const result = await db
       .selectFrom('users')
       .select(USER_PUBLIC_FIELDS)
       .where('id', '=', id)
-      .executeTakeFirst() ?? null;
+      .executeTakeFirst();
+    return (result ?? null) as PublicUser | null;
   }
 
-  async update(id: string, data: Partial<User>): Promise<User> {
+  async update(id: string, data: Partial<UserUpdate>): Promise<PublicUser> {
     const user = await db
       .selectFrom('users')
       .selectAll()
@@ -33,7 +36,7 @@ export class UsersService {
 
     await db
       .updateTable('users')
-      .set({ ...data, updatedAt: new Date().toISOString() })
+      .set({ ...data, updatedAt: new Date().toISOString() as any })
       .where('id', '=', id)
       .execute();
 
@@ -43,18 +46,14 @@ export class UsersService {
       .where('id', '=', id)
       .executeTakeFirst();
 
-    return updated!;
+    return updated as PublicUser;
   }
 
   async delete(id: string): Promise<void> {
-    const result = await db
+    await db
       .deleteFrom('users')
       .where('id', '=', id)
-      .executeTakeFirst();
-
-    if (Number(result.numAffectedRows) === 0) {
-      throw new Error('User not found');
-    }
+      .execute();
   }
 }
 

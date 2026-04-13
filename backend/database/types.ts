@@ -1,4 +1,4 @@
-import { Generated, Insertable, Selectable, Updateable } from 'kysely';
+import type { Generated, Insertable, Selectable, Updateable } from 'kysely';
 
 /**
  * User table interface
@@ -14,11 +14,11 @@ export interface UserTable {
   role: 'user' | 'admin';
   emailVerified: boolean;
   emailVerificationToken: string | null;
-  emailVerificationExpires: Date | null;
+  emailVerificationExpires: string | null;
   resetToken: string | null;
-  resetTokenExpires: Date | null;
-  createdAt: Generated<Date>;
-  updatedAt: Generated<Date>;
+  resetTokenExpires: string | null;
+  createdAt: Generated<string>;
+  updatedAt: Generated<string>;
 }
 
 /**
