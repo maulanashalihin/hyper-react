@@ -11,7 +11,16 @@ const databasePath = isTest
   : join(process.env.DATABASE_PATH || 'data', 'database.sqlite');
 
 const sqliteDb = new Database(databasePath);
+
+// Enable WAL mode and optimize for high write throughput
+sqliteDb.pragma('journal_mode = WAL');
+sqliteDb.pragma('synchronous = NORMAL');
+sqliteDb.pragma('cache_size = -64000'); // 64MB cache
+sqliteDb.pragma('temp_store = memory');
 sqliteDb.pragma('foreign_keys = ON');
+sqliteDb.pragma('busy_timeout = 5000'); // 5 seconds timeout for concurrent access
+
+console.log('SQLite WAL mode enabled for high write throughput');
 
 function createSqliteExecutor(db: Database): IGenericSqlite<Database> {
   const getStmt = (sql: string) => db.prepare(sql);
